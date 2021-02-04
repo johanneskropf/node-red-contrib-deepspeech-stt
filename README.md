@@ -1,5 +1,5 @@
 # node-red-contrib-deepspeech-stt
-A node-red node for speech to text inference using mozillas deepspeech
+A node-red node for speech to text inference using [mozillas deepspeech](https://deepspeech.readthedocs.io/en/latest/index.html).
 
 This node uses the official [deepspeech](https://deepspeech.readthedocs.io/en/latest/index.html) node.js client implementation. So just install the node from your node-red folder (normally `~/.node-red`) with
 ```
