@@ -1,0 +1,28 @@
+{
+  "name": "node-red-contrib-deepspeech-stt",
+  "version": "0.1.0",
+  "description": "a node-red integration of mozilla deepspeech",
+  "author": "Johannes Kropf",
+  "license": "Apache-2.0",
+  
+  "keywords": [
+        "deepspeech",
+        "stt",
+        "speechtotext",
+        "asr",
+        "speech-to-text"
+  ],
+  "repository": {
+        "type": "git",
+        "url": "https://github.com/johanneskropf/node-red-contrib-deepspeech-stt.git"
+  },
+  "dependencies":{
+      "deepspeech":"latest",
+      "music-metadata":"latest"
+  },
+  "node-red": {
+        "nodes": {
+            "deepspeech-wav": "deepspeech-wav.js"
+        }
+    }
+}

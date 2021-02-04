@@ -1,0 +1,70 @@
+<!--
+  Copyright 2021, Johannes Kropf
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/javascript">
+    RED.nodes.registerType('deepspeech-wav',{
+        category: 'deepspeech',
+        color: '#009688',
+        defaults: {
+            modelPath: {value:"", required:true},
+            scorerPath: {value:"", required:true},
+            inputProp: {value:"payload"},
+            outputProp: {value:"payload"},
+            name: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "font-awesome/fa-commenting",
+        label: function() {
+            return this.name||"deepspeech-wav";
+        },
+        oneditprepare: function() {
+            var node = this;
+            $("#node-input-inputProp").typedInput({
+                type:"msg",
+                types:["msg"]
+            });
+            $("#node-input-outputProp").typedInput({
+                type:"msg",
+                types:["msg"]
+            }); 
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="deepspeech-wav">
+    <div class="form-row">
+        <label for="node-input-modelPath"><i class="fa fa-file-code-o"></i> Model Path</label>
+        <input type="text" id="node-input-modelPath" placeholder="Model Path">
+    </div>
+    <div class="form-row">
+        <label for="node-input-scorerPath"><i class="fa fa-file-code-o"></i> Scorer Path</label>
+        <input type="text" id="node-input-scorerPath" placeholder="Scorer">
+    </div>
+    <div class="form-row">
+        <label for="node-input-inputProp"><i class="fa fa-sign-in"></i> Input Field</label>
+        <input type="text" id="node-input-inputProp">
+    </div>
+    <div class="form-row">
+        <label for="node-input-outputProp"><i class="fa fa-sign-out"></i> Output Field</label>
+        <input type="text" id="node-input-outputProp">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="deepspeech-wav">
+    <p>A simple node to decode audio from a wav to text with deepspeech</p>
+</script>
