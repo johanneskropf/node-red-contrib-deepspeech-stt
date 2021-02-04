@@ -141,7 +141,7 @@ module.exports = function(RED) {
                     }
                     
                     try {
-                        transcription.text = node.decoder.stt(msg.payload);
+                        transcription.text = node.decoder.stt(input);
                         transcription.audioDuration = meta.format.duration;
                         transcription.inferenceDuration = (Date.now()-inputTime)/1000;
                         msg[node.outputProp] = transcription;
