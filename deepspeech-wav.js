@@ -26,6 +26,8 @@ module.exports = function(RED) {
         
         this.modelPath = config.modelPath;
         this.scorerPath = config.scorerPath;
+        this.advanced = config.showAdvanced;
+        this.beamWidth = config.beamWidth;
         this.inputProp = config.inputProp;
         this.outputProp = config.outputProp;
         this.errorStop = false;
@@ -88,6 +90,11 @@ module.exports = function(RED) {
             try {
                 node.decoder = new deepspeech.Model(node.modelPath);
                 node.decoder.enableExternalScorer(node.scorerPath);
+                if (node.advanced) {
+                    if (node.beamWidth.length > 0 && node.beamWidth.match(/^[0-9]+$/g)) {
+                        node.decoder.setBeamWidth(Number(node.beamWidth));
+                    }
+                }
             } catch (error) {
                 node.error(`decoder error: ${error}`);
                 node.errorStop = true;
@@ -115,8 +122,6 @@ module.exports = function(RED) {
                 node.warn("non buffer payload will be ignored");
             } else {
                 
-                node_status(["inference in progress...","blue","dot"]);
-                
                 checkBuffer(input).then((meta) => {
                     if (meta.format.bitsPerSample !== 16) {
                         (done) ?
@@ -141,12 +146,15 @@ module.exports = function(RED) {
                     }
                     
                     try {
-                        transcription.text = node.decoder.stt(input);
-                        transcription.audioDuration = meta.format.duration;
-                        transcription.inferenceDuration = (Date.now()-inputTime)/1000;
-                        msg[node.outputProp] = transcription;
-                        (send) ? send(msg) : node.send(msg);
-                        node_status(["inference done","green","dot"],1500);
+                        node_status(["inference in progress...","blue","dot"]);
+                        setTimeout(() => {
+                            transcription.text = node.decoder.stt(input);
+                            transcription.audioDuration = meta.format.duration;
+                            transcription.inferenceDuration = (Date.now()-inputTime)/1000;
+                            msg[node.outputProp] = transcription;
+                            (send) ? send(msg) : node.send(msg);
+                            node_status(["inference done","green","dot"],1500);
+                        },50);
                     } catch (error) {
                         (done) ?
                         done(`Transcription failed ${error}`) :
@@ -175,6 +183,7 @@ module.exports = function(RED) {
             node.statusTimer = false;
             node.status({});
             if (node.decoder) {
+                deepspeech.FreeModel(node.decoder);
                 node.decoder = null;
             }
         });

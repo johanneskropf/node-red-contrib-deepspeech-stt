@@ -18,6 +18,8 @@
         defaults: {
             modelPath: {value:"", required:true},
             scorerPath: {value:"", required:true},
+            showAdvanced: {value:false},
+            beamWidth: {value:""},
             inputProp: {value:"payload"},
             outputProp: {value:"payload"},
             name: {value:""}
@@ -38,11 +40,19 @@
                 type:"msg",
                 types:["msg"]
             }); 
+            $("#node-input-showAdvanced").on("change", function(){
+                if(!$("#node-input-showAdvanced").prop("checked")){
+                    $("#advancedWrapper").hide();
+                } else {
+                    $("#advancedWrapper").show();
+                }
+            });
         }
     });
 </script>
 
 <script type="text/html" data-template-name="deepspeech-wav">
+    <h4>Basic Settings</h4>
     <div class="form-row">
         <label for="node-input-modelPath"><i class="fa fa-file-code-o"></i> Model Path</label>
         <input type="text" id="node-input-modelPath" placeholder="Model Path">
@@ -51,6 +61,19 @@
         <label for="node-input-scorerPath"><i class="fa fa-file-code-o"></i> Scorer Path</label>
         <input type="text" id="node-input-scorerPath" placeholder="Scorer">
     </div>
+    <h4>Advanced Settings</h4>
+    <div class="form-row">
+        <label for="node-input-showAdvanced"><i class="fa fa-cog"></i> Advanced</label>
+        <input type="checkbox" id="node-input-showAdvanced" style="display:inline-block; width: auto; vertical-align:baseline;" value="true">
+        <label for="node-input-showAdvanced" style="width: 70%;">enable advanced options</label>
+    </div>
+    <div id="advancedWrapper">
+        <div class="form-row">
+            <label for="node-input-beamWidth"><i class="fa fa-arrows-h"></i> Beam Width</label>
+            <input type="text" id="node-input-beamWidth" placeholder="enter a Beam Width (int)">
+        </div>
+    </div>
+    <h4>Input/Output Settings</h4>
     <div class="form-row">
         <label for="node-input-inputProp"><i class="fa fa-sign-in"></i> Input Field</label>
         <input type="text" id="node-input-inputProp">
@@ -59,6 +82,7 @@
         <label for="node-input-outputProp"><i class="fa fa-sign-out"></i> Output Field</label>
         <input type="text" id="node-input-outputProp">
     </div>
+    <h4>Other Settings</h4>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
