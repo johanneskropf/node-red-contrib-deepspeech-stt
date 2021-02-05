@@ -183,8 +183,12 @@ module.exports = function(RED) {
             node.statusTimer = false;
             node.status({});
             if (node.decoder) {
-                deepspeech.FreeModel(node.decoder);
-                node.decoder = null;
+                try {
+                    deepspeech.FreeModel(node.decoder);
+                    node.decoder = null;
+                } catch (error) {
+                    node.error(`couldnt clean up deepspeech: ${error}`)
+                }
             }
         });
         
