@@ -27,7 +27,12 @@ module.exports = function(RED) {
         this.modelPath = config.modelPath;
         this.scorerPath = config.scorerPath;
         this.advanced = config.showAdvanced;
+        this.enableBeamwidth = (config.showAdvanced) ? config.enableBeamwidth : false;
         this.beamWidth = config.beamWidth;
+        this.enableAlphaBeta = (config.showAdvanced) ? config.enableAlphaBeta : false;
+        this.lmAlpha = config.lmAlpha;
+        this.lmBeta = config.lmBeta;
+        this.disableScorer = (config.showAdvanced) ? config.disableScorer : false;
         this.inputProp = config.inputProp;
         this.outputProp = config.outputProp;
         this.errorStop = false;
@@ -81,7 +86,7 @@ module.exports = function(RED) {
             node.errorStop = true;
             node_status(["error","red","dot"]);
         }
-        if (!fs.existsSync(node.scorerPath)) {
+        if (!fs.existsSync(node.scorerPath) && !node.disableScorer) {
             node.error(`error: ${node.scorerPath} does not exist`);
             node.errorStop = true;
             node_status(["error","red","dot"]);
@@ -89,10 +94,19 @@ module.exports = function(RED) {
         if (!node.errorStop) {
             try {
                 node.decoder = new deepspeech.Model(node.modelPath);
-                node.decoder.enableExternalScorer(node.scorerPath);
+                if (!node.disableScorer) { node.decoder.enableExternalScorer(node.scorerPath); }
                 if (node.advanced) {
-                    if (node.beamWidth.length > 0 && node.beamWidth.match(/^[0-9]+$/g)) {
+                    if (node.enableBeamwidth && node.beamWidth.length > 0 && node.beamWidth.match(/^[0-9]+$/g)) {
                         node.decoder.setBeamWidth(Number(node.beamWidth));
+                    } else {
+                        node.warn("ignoring beam width, needs to be a valid integer number value");
+                    }
+                    if (node.enableAlphaBeta && !node.disableScorer) {
+                        if (node.lmAlpha.length > 0 && node.lmAlpha.match(/^[0-9]+[\.]?[0-9]*$/g) && node.lmBeta.length > 0 && node.lmBeta.match(/^[0-9]+[\.]?[0-9]*$/g)) {
+                            node.decoder.setScorerAlphaBeta(Number(node.lmAlpha), Number(node.lmAlpha));
+                        } else {
+                            node.warn("ignoring alpha and beta values, both need to be set and need to be a valid floating point number value");
+                        }
                     }
                 }
             } catch (error) {

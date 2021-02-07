@@ -19,7 +19,12 @@
             modelPath: {value:"", required:true},
             scorerPath: {value:"", required:true},
             showAdvanced: {value:false},
+            enableBeamwidth: {value:false},
             beamWidth: {value:""},
+            enableAlphaBeta: {value:false},
+            lmAlpha: {value:""},
+            lmBeta: {value:""},
+            disableScorer: {value:false},
             inputProp: {value:"payload"},
             outputProp: {value:"payload"},
             name: {value:""}
@@ -43,8 +48,45 @@
             $("#node-input-showAdvanced").on("change", function(){
                 if(!$("#node-input-showAdvanced").prop("checked")){
                     $("#advancedWrapper").hide();
+                    if($("#node-input-disableScorer").prop("checked")) {
+                        $("#node-input-scorerPath").prop("disabled", false);
+                    }
                 } else {
                     $("#advancedWrapper").show();
+                    if($("#node-input-disableScorer").prop("checked")) {
+                        $("#node-input-scorerPath").prop("disabled", true);
+                    }
+                }
+            });
+            $("#node-input-enableBeamwidth").on("change", function(){
+                if($("#node-input-enableBeamwidth").prop("checked")){
+                    $("#node-input-beamWidth").prop("disabled", false);
+                } else if (!$("#node-input-enableBeamwidth").prop("checked")) {
+                    $("#node-input-beamWidth").prop("disabled", true);
+                }
+            });
+            $("#node-input-enableAlphaBeta").on("change", function(){
+                if($("#node-input-enableAlphaBeta").prop("checked")){
+                    $("#node-input-lmAlpha").prop("disabled", false);
+                    $("#node-input-lmBeta").prop("disabled", false);
+                } else if (!$("#node-input-enableAlphaBeta").prop("checked")) {
+                    $("#node-input-lmAlpha").prop("disabled", true);
+                    $("#node-input-lmBeta").prop("disabled", true);
+                }
+            });
+            $("#node-input-disableScorer").on("change", function(){
+                if($("#node-input-showAdvanced").prop("checked") && $("#node-input-disableScorer").prop("checked")){
+                    $("#node-input-scorerPath").prop("disabled", true);
+                    $("#node-input-enableAlphaBeta").prop("disabled", true);
+                    $("#node-input-lmAlpha").prop("disabled", true);
+                    $("#node-input-lmBeta").prop("disabled", true);
+                } else if ($("#node-input-showAdvanced").prop("checked") && !$("#node-input-disableScorer").prop("checked")) {
+                    $("#node-input-scorerPath").prop("disabled", false);
+                    $("#node-input-enableAlphaBeta").prop("disabled", false);
+                    if ($("#node-input-enableAlphaBeta").prop("checked")) {
+                        $("#node-input-lmAlpha").prop("disabled", false);
+                        $("#node-input-lmBeta").prop("disabled", false);
+                    }
                 }
             });
         }
@@ -61,17 +103,36 @@
         <label for="node-input-scorerPath"><i class="fa fa-file-code-o"></i> Scorer Path</label>
         <input type="text" id="node-input-scorerPath" placeholder="Scorer">
     </div>
-    <h4>Advanced Settings</h4>
     <div class="form-row">
-        <label for="node-input-showAdvanced"><i class="fa fa-cog"></i> Advanced</label>
+        <label for="node-input-showAdvanced"><i class="fa fa-cogs"></i> Advanced</label>
         <input type="checkbox" id="node-input-showAdvanced" style="display:inline-block; width: auto; vertical-align:baseline;" value="true">
         <label for="node-input-showAdvanced" style="width: 70%;">enable advanced options</label>
     </div>
     <div id="advancedWrapper">
+        <h4>Advanced Settings</h4>
         <div class="form-row">
             <label for="node-input-beamWidth"><i class="fa fa-arrows-h"></i> Beam Width</label>
             <input type="text" id="node-input-beamWidth" placeholder="enter a Beam Width (int)">
+            <input type="checkbox" id="node-input-enableBeamwidth" style="display:inline-block; width: auto; vertical-align:baseline;" value="false">
         </div>
+        <div class="form-row">
+            <label for="node-input-enableAlphaBeta"><i class="fa fa-check"></i> Alpha Beta</label>
+            <input type="checkbox" id="node-input-enableAlphaBeta" style="display:inline-block; width: auto; vertical-align:baseline;" value="false">
+            <label for="node-input-enableAlphaBeta" style="width: 70%;">override scorer alpha and beta value</label>
+        </div>
+        <div class="form-row">
+            <label for="node-input-lmAlpha"><i class="fa fa-toggle-up"></i> lm_alpha</label>
+            <input type="text" id="node-input-lmAlpha" placeholder="enter a lm_alpha value (float)">
+        </div>
+        <div class="form-row">
+            <label for="node-input-lmBeta"><i class="fa fa-toggle-up"></i> lm_beta</label>
+            <input type="text" id="node-input-lmBeta" placeholder="enter a lm_beta value (float)">
+        </div>
+        <div class="form-row">
+            <label for="node-input-disableScorer"><i class="fa fa-ban"></i> Scorer</label>
+            <input type="checkbox" id="node-input-disableScorer" style="display:inline-block; width: auto; vertical-align:baseline;" value="false">
+        <label for="node-input-disableScorer" style="width: 70%;">disable external scorer</label>
+    </div>
     </div>
     <h4>Input/Output Settings</h4>
     <div class="form-row">
