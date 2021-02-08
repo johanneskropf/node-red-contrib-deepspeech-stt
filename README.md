@@ -34,7 +34,7 @@ The node exposes a number other settings from the deepspeech node.js api that ca
 
 You can override the default beam width setting. The beamwidth influences how many options the deepspeech ctc beam search decoder explores while
 transcribing the  audio. The higher the accuracy but the slower the transcription will become and vice versa. There is also a point of diminishing
-returns if set too high. The default is 512. Set lower for faster results or higher to see if a higher accuracy can be achieved wothe the model and scorer used.
+returns if set too high. The default is 512. Set lower for faster results or higher to see if a higher accuracy can be achieved with the model and scorer used.
 
 ### lm alpha & beta
 
