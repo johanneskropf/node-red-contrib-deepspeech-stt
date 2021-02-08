@@ -35,6 +35,7 @@ module.exports = function(RED) {
         this.disableScorer = (config.showAdvanced) ? config.disableScorer : false;
         this.inputProp = config.inputProp;
         this.outputProp = config.outputProp;
+        this.hotwordList = [];
         this.errorStop = false;
         this.statusTimer = false;
         
@@ -133,7 +134,29 @@ module.exports = function(RED) {
             const input = RED.util.getMessageProperty(msg, node.inputProp); 
             
             if (!Buffer.isBuffer(input)) {
+                
+                if (Array.isArray(input)) {
+                    if(input.length < 1) {
+                        node.decoder.clearHotWords();
+                        node.hotwordList = [];
+                        node.warn("cleared all hotwords");
+                    } else if (typeof input[0] === "object" && input[0].hasOwnProperty("word") && input[0].hasOwnProperty("boost")) {
+                        let hotwords = "";
+                        input.forEach(item => {
+                            if (typeof item === "object" && item.hasOwnProperty("word") && item.hasOwnProperty("boost") && !node.hotwordList.includes(item.word)) {
+                                node.decoder.addHotWord(item.word, item.boost);
+                                node.hotwordList.push(item.word);
+                                hotwords = hotwords + item.word + ", ";
+                            }
+                        });
+                        hotwords = hotwords.substring(0, hotwords.length - 2);
+                        node.warn(`added the following words to the hotwords list: ${hotwords} (to clear hotwords send an empty array)`);
+                    }
+                    if (done) { done(); }
+                    return;
+                }
                 node.warn("non buffer payload will be ignored");
+                
             } else {
                 
                 checkBuffer(input).then((meta) => {
