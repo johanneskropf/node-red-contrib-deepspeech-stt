@@ -50,7 +50,7 @@ They will most likely not be very accurate and slower.
 
 This is a recent feature added to deepspeech that allows you to increase the likelihood of certain words to appear in the transcription.
 Each hotword is accompanied by a boost value (between -100 and 100, negative values decrease the likelihood of appearance).
-A hotword should be a single word with no space that is part of the vocabulary used for the scorer.
+A hotword should be a single word with no space that is part of the vocabulary used for the scorer. Most likely you wont need a value bigger than 10 to have a sufficient increase in propability for a single word. (using higher value can lead to detrimental results)
 You can add hotwords to the deepspeech node in node-red by sending an array of objects containing the words and boost values to the nodes configured
 input property:
 ```
