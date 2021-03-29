@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-deepspeech-stt",
-  "version": "0.3.0",
+  "version": "0.3.9",
   "description": "a node-red integration of mozilla deepspeech",
   "author": "Johannes Kropf",
   "license": "Apache-2.0",
@@ -23,7 +23,8 @@
   },
   "node-red": {
         "nodes": {
-            "deepspeech-wav": "deepspeech-wav.js"
+            "deepspeech-wav": "deepspeech-wav.js",
+            "deepspeech-stream": "deepspeech-stream.js"
         }
     }
 }
