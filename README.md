@@ -1,7 +1,7 @@
 # node-red-contrib-deepspeech-stt
-A node-red node for speech to text inference using [mozillas deepspeech](https://deepspeech.readthedocs.io/en/latest/index.html).
+A node-red node for speech to text inference from audio using [mozillas deepspeech](https://deepspeech.readthedocs.io/en/latest/index.html).
 
-This node uses the official [deepspeech](https://deepspeech.readthedocs.io/en/latest/index.html) node.js client cpu implementation.
+This suite of nodes uses the official [deepspeech](https://deepspeech.readthedocs.io/en/latest/index.html) node.js client cpu implementation.
 So just install the node from the palette or your node-red folder (normally `~/.node-red`) with:
 ```
 npm install node-red-contrib-deepspeech-stt
@@ -14,7 +14,8 @@ npm install johanneskropf/node-red-contrib-deepspeech-stt
 and deepspeech will be automatically installed as a dependency.
 The node uses deepspeech 0.9.3 or later. 
 
-## Basic Usage
+## Deepspeech-Wav Node
+### Basic Usage
 
 To do speech to text inference you need to download a model(**tflite**) and a corresponding scorer file.
 For example [the official english or chinese model](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3) can be found on the release page.
@@ -26,27 +27,27 @@ If you want to do more accurate and quicker transcriptions of a limited vocabula
 For a list of some of the other available pre-trained models for different languages have a look in
 [this thread on the mozilla deepspeech forum](https://discourse.mozilla.org/t/links-to-pretrained-models/62688).
 
-## Advanced
+### Advanced
 
 The node exposes a number other settings from the deepspeech node.js api that can be used for changing the behaviour and tuning transcription speed and or results.
 
-### beam width
+#### beam width
 
 You can override the default beam width setting. The beamwidth influences how many options the deepspeech ctc beam search decoder explores while
 transcribing the  audio. The higher the accuracy but the slower the transcription will become and vice versa. There is also a point of diminishing
 returns if set too high. The default is 512. Set lower for faster results or higher to see if a higher accuracy can be achieved with the model and scorer used.
 
-### lm alpha & beta
+#### lm alpha & beta
 
 Each scorer comes with default lm alpha (language model weight) and lm beta (word insertion penalty) values. You can override those values if you have a reason.
 They are differnt for each scorer and the defaults are normally fairly well optimized.
 
-### disable external scorer
+#### disable external scorer
 
 You can disable the use of an external scorer. This will give you the pure letter based predictions coming from the accoustic model.
 They will most likely not be very accurate and slower.
 
-### hotwords
+#### hotwords
 
 This is a recent feature added to deepspeech that allows you to increase the likelihood of certain words to appear in the transcription.
 Each hotword is accompanied by a boost value (between -100 and 100, negative values decrease the likelihood of appearance).
@@ -54,6 +55,25 @@ A hotword should be a single word with no space that is part of the vocabulary u
 You can add hotwords to the deepspeech node in node-red by sending an array of objects containing the words and boost values to the nodes configured
 input property:
 ```
-[{"word":"car","boost":10},{"word":"dod","boost":15},{"word":"bird","boost":5}]
+[{"word":"car","boost":10},{"word":"dog","boost":15},{"word":"bird","boost":5}]
 ```
 To clear the hotwords from the node send an empty array to it.
+
+## Deepspeech-Stream Node
+### Usage
+
+For the stream node the same prerequisites as for the wav node apply. It also shares the same settings and advanced settings as described above.
+It differs in the following points:
+
++ this node accepts a stream of raw pcm audio buffers as its input. It will do the inference as the audio arrives. As soon as the audio stream stops it will send the transcription result in the configured `msg` property.
++ the stream needs to have the following format for most available models:
+    + 16bit
+    + little endian
+    + signed-integer
+    + 16000hz
+    + mono
++ there is a timeout in milliseconds to consider the audio stream as stopped if no new buffers arrive that can be configured in the nodes settings. Setting the timeout to **0** will result in no stopping even if the audio stream stops.
++ in addition the stream inference node supports the following control messages send in the configured input property:
+    + a string of **stop** in the configured message property will stop the running inference without returning a result
+    + a string of **stop_result** in the configured message property will stop the running inference and return the final inference result
+    + a string of **intermediate** in the configured message property will return an intermediate result with the transcription up to that point
