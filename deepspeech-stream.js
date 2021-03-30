@@ -32,6 +32,7 @@ module.exports = function(RED) {
         this.lmAlpha = config.lmAlpha;
         this.lmBeta = config.lmBeta;
         this.disableScorer = (config.showAdvanced) ? config.disableScorer : false;
+        this.finalTimeout = config.finalTimeout;
         this.inputProp = config.inputProp;
         this.outputProp = config.outputProp;
         this.hotwordList = [];
@@ -83,7 +84,7 @@ module.exports = function(RED) {
                 node.streamDecoder = null;
                 node_status(["inference done","green","dot"],1500);
                 node.inputTimeout = false;
-            }, 500);
+            }, node.finalTimeout);
         }
         
         if (!fs.existsSync(node.modelPath)) {
@@ -95,6 +96,13 @@ module.exports = function(RED) {
             node.error(`error: ${node.scorerPath} does not exist`);
             node.errorStop = true;
             node_status(["error","red","dot"]);
+        }
+        if (node.finalTimeout.match(/^[0-9]+$/g) === null) {
+            node.error("timeout needs to be a valid int value");
+            node.errorStop = true;
+            node_status(["error","red","dot"]);
+        } else {
+            node.finalTimeout = parseInt(node.finalTimeout);
         }
         if (!node.errorStop) {
             try {
@@ -155,8 +163,59 @@ module.exports = function(RED) {
                     }
                     if (done) { done(); }
                     return;
+                } else if (typeof input === "string") {
+                    switch (input) {
+                        case "stop":
+                            if (node.streamDecoder){
+                                try {
+                                    if (node.inputTimeout !== false) {
+                                        clearTimeout(node.inputTimeout);
+                                        node.inputTimeout = false;
+                                    }
+                                    deepspeech.FreeStream(node.streamDecoder);
+                                    node.streamDecoder = null;
+                                } catch (error) {
+                                    node.error(`couldnt clean up deepspeech stream: ${error}`)
+                                }
+                            } else {
+                                node.warn("no inference in progress");
+                            }
+                            break;
+                            
+                        case "stop_result":
+                            if (node.streamDecoder){
+                                try {
+                                    if (node.inputTimeout !== false) {
+                                        clearTimeout(node.inputTimeout);
+                                        node.inputTimeout = false;
+                                    }
+                                    let transcription = {};
+                                    transcription.text = node.streamDecoder.finishStream();
+                                    msg[node.outputProp] = transcription;
+                                    (send) ? send(msg) : node.send(msg);
+                                    node.streamDecoder = null;
+                                    node_status(["inference done","green","dot"],1500);
+                                } catch (error) {
+                                    node.error(`couldnt clean up deepspeech stream: ${error}`)
+                                }
+                            } else {
+                                node.warn("no inference in progress");
+                            }
+                            break;
+                            
+                        case "intermediate":
+                            if (node.streamDecoder) {
+                                let transcription = {};
+                                transcription.text = node.streamDecoder.intermediateDecode();
+                                msg[node.outputProp] = transcription;
+                                (send) ? send(msg) : node.send(msg);
+                            } else {
+                                node.warn("no inference in progress");
+                            }
+                            break;
+                    }
                 }
-                node.warn("non buffer payload will be ignored");
+                node.warn("non buffer / non control payload will be ignored");
                 
             } else {
                 
@@ -166,7 +225,9 @@ module.exports = function(RED) {
                 }
                 
                 node.streamDecoder.feedAudioContent(input);
-                inputTimeoutTimer();
+                if (node.finalTimeout !== 0) {
+                    inputTimeoutTimer();
+                }
                 
             }
             
@@ -179,6 +240,10 @@ module.exports = function(RED) {
             if (node.statusTimer) { clearTimeout(node.statusTimer); }
             node.statusTimer = false;
             node.status({});
+            if (node.inputTimeout !== false) {
+                clearTimeout(node.inputTimeout);
+                node.inputTimeout = false;
+            }
             if (node.streamDecoder){
                 try {
                     deepspeech.FreeStream(node.streamDecoder);
@@ -199,4 +264,4 @@ module.exports = function(RED) {
         
     }
     RED.nodes.registerType("deepspeech-stream",deepspeechStreamNode);
-    }
+}

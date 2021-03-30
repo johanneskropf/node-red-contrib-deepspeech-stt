@@ -25,13 +25,14 @@
             lmAlpha: {value:""},
             lmBeta: {value:""},
             disableScorer: {value:false},
+            finalTimeout: {value:"300", required:true},
             inputProp: {value:"payload"},
             outputProp: {value:"payload"},
             name: {value:""}
         },
         inputs:1,
         outputs:1,
-        icon: "font-awesome/fa-commenting",
+        icon: "font-awesome/fa-road",
         label: function() {
             return this.name||"deepspeech-stream";
         },
@@ -104,6 +105,10 @@
         <input type="text" id="node-input-scorerPath" placeholder="Scorer">
     </div>
     <div class="form-row">
+        <label for="node-input-finalTimeout"><i class="fa fa-clock-o"></i> timeout (ms)</label>
+        <input type="text" id="node-input-finalTimeout" placeholder="300">
+    </div>
+    <div class="form-row">
         <label for="node-input-showAdvanced"><i class="fa fa-cogs"></i> Advanced</label>
         <input type="checkbox" id="node-input-showAdvanced" style="display:inline-block; width: auto; vertical-align:baseline;" value="true">
         <label for="node-input-showAdvanced" style="width: 70%;">enable advanced options</label>
@@ -132,7 +137,7 @@
             <label for="node-input-disableScorer"><i class="fa fa-ban"></i> Scorer</label>
             <input type="checkbox" id="node-input-disableScorer" style="display:inline-block; width: auto; vertical-align:baseline;" value="false">
         <label for="node-input-disableScorer" style="width: 70%;">disable external scorer</label>
-    </div>
+        </div>
     </div>
     <h4>Input/Output Settings</h4>
     <div class="form-row">
@@ -151,7 +156,8 @@
 </script>
 
 <script type="text/html" data-help-name="deepspeech-stream">
-    <p>A simple node to decode audio from a wav to text with deepspeech. For the documentation
+    <p>A simple node to decode audio from a raw pcm audio stream to text with deepspeech. 
+    For the documentation
     please see the 
     <a href="https://github.com/johanneskropf/node-red-contrib-deepspeech-stt/blob/main/README.md">
     readme</a>.</p>
